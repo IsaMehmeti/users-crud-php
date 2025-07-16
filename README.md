@@ -1,61 +1,460 @@
-<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
+# Users CRUD API
 
-<p align="center">
-<a href="https://github.com/laravel/framework/actions"><img src="https://github.com/laravel/framework/workflows/tests/badge.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
-</p>
+## Technologies Used
 
-## About Laravel
+-   **Backend**: Laravel 12.x (PHP 8.2+)
+-   **Database**: MySQL 8.0 with stored procedures
+-   **Authentication**: JWT auth
+-   **Containerization**: Docker & Docker Compose
+-   **Database Management**: phpMyAdmin (included)
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
+## Features
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
+-   User CRUD operations with RESTful API
+-   MySQL stored procedures
+-   JWT authentication
+-   Pagination
+-   Error handling
+-   Docker containerization
 
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
+## Database Schema
 
-## Learning Laravel
+### Users Table
 
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework.
+```sql
+CREATE TABLE users (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    first_name VARCHAR(100) NOT NULL,
+    last_name VARCHAR(100) NOT NULL,
+    email VARCHAR(150) NOT NULL UNIQUE,
+    password VARCHAR(255) NOT NULL,
+    created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+    updated_at DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+);
+```
 
-You may also try the [Laravel Bootcamp](https://bootcamp.laravel.com), where you will be guided through building a modern Laravel application from scratch.
+### Stored Procedures
 
-If you don't feel like reading, [Laracasts](https://laracasts.com) can help. Laracasts contains thousands of video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
+-   `create_user`
+-   `get_user_by_id`
+-   `get_user_by_email`
+-   `get_all_users`
+-   `update_user`
+-   `delete_user`
 
-## Laravel Sponsors
+## Quick Start (with Docker)
 
-We would like to extend our thanks to the following sponsors for funding Laravel development. If you are interested in becoming a sponsor, please visit the [Laravel Partners program](https://partners.laravel.com).
+### Step 1: Clone the Repository
 
-### Premium Partners
+```bash
+git clone <https://github.com/IsaMehmeti/users-crud-php.git>
+```
 
-- **[Vehikl](https://vehikl.com)**
-- **[Tighten Co.](https://tighten.co)**
-- **[Kirschbaum Development Group](https://kirschbaumdevelopment.com)**
-- **[64 Robots](https://64robots.com)**
-- **[Curotec](https://www.curotec.com/services/technologies/laravel)**
-- **[DevSquad](https://devsquad.com/hire-laravel-developers)**
-- **[Redberry](https://redberry.international/laravel-development)**
-- **[Active Logic](https://activelogic.com)**
+### Step 2: Environment Setup
 
-## Contributing
+Create a `.env` file from the example:
 
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
+```bash
+cp .env.example .env
+```
 
-## Code of Conduct
+**Important:** Generate a JWT secret key:
 
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
+```bash
+# Generate a random 32-character secret
+openssl rand -base64 32
+```
 
-## Security Vulnerabilities
+Add this to your `.env` file:
 
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
+```env
+JWT_SECRET=your_generated_secret_here
+```
 
-## License
+### Step 3: Build and Run with Docker Compose
 
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+```bash
+# Build and start all services
+docker-compose up --build
+
+# Or run in detached mode
+docker-compose up -d --build
+```
+
+### Step 4: Wait for Services to Start
+
+-   **API**: http://localhost:8080
+-   **phpMyAdmin**: http://localhost:8081
+-   **MySQL**: localhost:3306
+
+## Manual Setup (without Docker)
+
+### Prerequisites
+
+-   PHP 8.2+
+-   Composer
+-   MySQL 8.0+
+-   Apache/Nginx
+
+### Step 1: Install Dependencies
+
+```bash
+composer install
+```
+
+### Step 2: Environment Configuration
+
+```bash
+# Copy environment file
+cp .env.example .env
+
+# Generate application key
+php artisan key:generate
+
+# Generate JWT secret
+php artisan jwt:secret
+```
+
+### Step 3: Configure Database
+
+Update your `.env` file:
+
+```env
+DB_CONNECTION=mysql
+DB_HOST=127.0.0.1
+DB_PORT=3306
+DB_DATABASE=company_db
+DB_USERNAME=your_username
+DB_PASSWORD=your_password
+
+JWT_SECRET=your_jwt_secret_here
+JWT_TTL=60
+JWT_REFRESH_TTL=20160
+```
+
+### Step 4: Import Database Schema
+
+```bash
+# Connect to MySQL and run:
+mysql -u your_username -p < database/company_db_schema.sql
+```
+
+### Step 5: Start Development Server
+
+```bash
+php artisan serve
+```
+
+## API Documentation
+
+### Base URL
+
+```
+http://localhost:8080/api
+```
+
+### Authentication
+
+**JWT Authentication Required!** All user CRUD endpoints require authentication using JWT tokens.
+
+**Auth Token Header:**
+
+```
+Authorization: Bearer {your_jwt_token_here}
+```
+
+---
+
+## Authentication Endpoints
+
+### 1. Register User
+
+**POST** `/auth/register`
+
+**Request Body:**
+
+```json
+{
+    "first_name": "John",
+    "last_name": "Doe",
+    "email": "john.doe@example.com",
+    "password": "securepassword123"
+}
+```
+
+**Success Response (201):**
+
+```json
+{
+    "success": true,
+    "message": "User registered successfully",
+    "data": {
+        "user": {
+            "id": 1,
+            "first_name": "John",
+            "last_name": "Doe",
+            "email": "john.doe@example.com",
+            "created_at": "2024-01-15T10:30:00.000000Z",
+            "updated_at": "2024-01-15T10:30:00.000000Z"
+        },
+        "token": "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9...",
+        "token_type": "bearer",
+        "expires_in": 3600
+    }
+}
+```
+
+---
+
+### 2. Login
+
+**POST** `/auth/login`
+
+**Request Body:**
+
+```json
+{
+    "email": "john.doe@example.com",
+    "password": "securepassword123"
+}
+```
+
+**Success Response (200):**
+
+```json
+{
+    "success": true,
+    "message": "Login successful",
+    "data": {
+        "user": {
+            "id": 1,
+            "first_name": "John",
+            "last_name": "Doe",
+            "email": "john.doe@example.com",
+            "created_at": "2024-01-15T10:30:00.000000Z",
+            "updated_at": "2024-01-15T10:30:00.000000Z"
+        },
+        "token": "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9...",
+        "token_type": "bearer",
+        "expires_in": 3600
+    }
+}
+```
+
+---
+
+### 3. Get Current User
+
+**GET** `/auth/me`
+
+**Headers:** `Authorization: Bearer {token}`
+
+**Success Response (200):**
+
+```json
+{
+    "success": true,
+    "data": {
+        "id": 1,
+        "first_name": "John",
+        "last_name": "Doe",
+        "email": "john.doe@example.com",
+        "created_at": "2024-01-15T10:30:00.000000Z",
+        "updated_at": "2024-01-15T10:30:00.000000Z"
+    }
+}
+```
+
+---
+
+### 4. Refresh Token
+
+**POST** `/auth/refresh`
+
+**Headers:** `Authorization: Bearer {token}`
+
+**Success Response (200):**
+
+```json
+{
+    "success": true,
+    "data": {
+        "token": "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9...",
+        "token_type": "bearer",
+        "expires_in": 3600
+    }
+}
+```
+
+---
+
+### 5. Logout
+
+**POST** `/auth/logout`
+
+**Headers:** `Authorization: Bearer {token}`
+
+**Success Response (200):**
+
+```json
+{
+    "success": true,
+    "message": "Logged out successfully"
+}
+```
+
+---
+
+## User CRUD Endpoints (Protected)
+
+### 1. Create User
+
+**POST** `/users`
+
+**Headers:** `Authorization: Bearer {token}`
+
+**Request Body:**
+
+```json
+{
+    "first_name": "John",
+    "last_name": "Doe",
+    "email": "john.doe@example.com",
+    "password": "securepassword123"
+}
+```
+
+**Success Response (201):**
+
+```json
+{
+    "success": true,
+    "message": "User created successfully",
+    "data": {
+        "id": 1,
+        "first_name": "John",
+        "last_name": "Doe",
+        "email": "john.doe@example.com",
+        "created_at": "2024-01-15T10:30:00.000000Z",
+        "updated_at": "2024-01-15T10:30:00.000000Z"
+    }
+}
+```
+
+---
+
+### 2. Get All Users (with Pagination)
+
+**GET** `/users?page=1&limit=10`
+
+**Headers:** `Authorization: Bearer {token}`
+
+**Query Parameters:**
+
+-   `page` (optional): Page number (default: 1)
+-   `limit` (optional): Items per page (default: 10, max: 100)
+
+**Success Response (200):**
+
+```json
+{
+    "success": true,
+    "data": [
+        {
+            "id": 1,
+            "first_name": "John",
+            "last_name": "Doe",
+            "email": "john.doe@example.com",
+            "created_at": "2024-01-15T10:30:00.000000Z",
+            "updated_at": "2024-01-15T10:30:00.000000Z"
+        }
+    ],
+    "pagination": {
+        "current_page": 1,
+        "per_page": 10,
+        "total": 1,
+        "total_pages": 1
+    }
+}
+```
+
+---
+
+### 3. Get User by ID
+
+**GET** `/users/{id}`
+
+**Headers:** `Authorization: Bearer {token}`
+
+**Success Response (200):**
+
+```json
+{
+    "success": true,
+    "data": {
+        "id": 1,
+        "first_name": "John",
+        "last_name": "Doe",
+        "email": "john.doe@example.com",
+        "created_at": "2024-01-15T10:30:00.000000Z",
+        "updated_at": "2024-01-15T10:30:00.000000Z"
+    }
+}
+```
+
+---
+
+### 4. Update User
+
+**PUT** `/users/{id}`
+
+**Headers:** `Authorization: Bearer {token}`
+
+**Request Body:**
+
+```json
+{
+    "first_name": "Jane",
+    "last_name": "Updated",
+    "email": "jane.updated@example.com",
+    "password": "newpassword123"
+}
+```
+
+**Success Response (200):**
+
+```json
+{
+    "success": true,
+    "message": "User updated successfully",
+    "data": {
+        "id": 1,
+        "first_name": "Jane",
+        "last_name": "Updated",
+        "email": "jane.updated@example.com",
+        "created_at": "2024-01-15T10:30:00.000000Z",
+        "updated_at": "2024-01-15T10:35:00.000000Z"
+    }
+}
+```
+
+---
+
+### 5. Delete User
+
+**DELETE** `/users/{id}`
+
+**Headers:** `Authorization: Bearer {token}`
+
+**Success Response (200):**
+
+```json
+{
+    "success": true,
+    "message": "User deleted successfully"
+}
+```
+
+---
+
+A complete Postman collection is available.
