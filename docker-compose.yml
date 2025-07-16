@@ -1,0 +1,66 @@
+services:
+    app:
+        build:
+            context: .
+            dockerfile: Dockerfile
+        container_name: users-crud-api
+        ports:
+            - "8080:80"
+        environment:
+            - APP_ENV=production
+            - APP_DEBUG=false
+            - DB_CONNECTION=mysql
+            - DB_HOST=mysql
+            - DB_PORT=3306
+            - DB_DATABASE=company_db
+            - DB_USERNAME=root
+            - DB_PASSWORD=root_password
+        depends_on:
+            mysql:
+                condition: service_healthy
+        volumes:
+            - ./storage:/var/www/html/storage
+        networks:
+            - app-network
+
+    mysql:
+        image: mysql:8.0
+        container_name: users-crud-mysql
+        ports:
+            - "3307:3306"
+        environment:
+            - MYSQL_ROOT_PASSWORD=root_password
+            - MYSQL_DATABASE=company_db
+            - MYSQL_USER=app_user
+            - MYSQL_PASSWORD=app_password
+        volumes:
+            - mysql_data:/var/lib/mysql
+            - ./database/company_db_schema.sql:/docker-entrypoint-initdb.d/company_db_schema.sql
+        healthcheck:
+            test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+            timeout: 20s
+            retries: 10
+        networks:
+            - app-network
+
+    phpmyadmin:
+        image: phpmyadmin/phpmyadmin
+        container_name: users-crud-phpmyadmin
+        ports:
+            - "8081:80"
+        environment:
+            - PMA_HOST=mysql
+            - PMA_PORT=3306
+            - PMA_USER=root
+            - PMA_PASSWORD=root_password
+        depends_on:
+            - mysql
+        networks:
+            - app-network
+
+volumes:
+    mysql_data:
+
+networks:
+    app-network:
+        driver: bridge
